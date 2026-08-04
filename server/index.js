@@ -76,6 +76,16 @@ app.get('/api/instruments/indices', asyncHandler(async (req, res) => {
   res.json(await instruments.indices());
 }));
 
+app.get('/api/instruments/option-underlyings', asyncHandler(async (req, res) => {
+  res.json(await instruments.optionUnderlyings(req.query.q));
+}));
+
+app.get('/api/instruments/options-chain', asyncHandler(async (req, res) => {
+  const { name, exchange } = req.query;
+  if (!name) return res.status(400).json({ error: 'name is required' });
+  res.json(await instruments.optionsChain({ name, exchange }));
+}));
+
 const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws-feed' });

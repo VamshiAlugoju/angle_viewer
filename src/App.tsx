@@ -3,6 +3,7 @@ import { api, type Instrument } from './api/client'
 import { LoginForm } from './components/LoginForm'
 import { ProfileRms } from './components/ProfileRms'
 import { InstrumentSearch } from './components/InstrumentSearch'
+import { OptionsChain } from './components/OptionsChain'
 import { HistoricalData } from './components/HistoricalData'
 import { LiveTicker } from './components/LiveTicker'
 import './App.css'
@@ -74,15 +75,7 @@ function App() {
 
       {tab === 'options' && (
         <>
-          <InstrumentSearch
-            title="Options Instruments"
-            selected={selectedOption}
-            onSelect={setSelectedOption}
-            fixedExchange="NFO"
-            instrumentTypeFilter="OPTSTK,OPTIDX"
-            placeholder="Search option contract (e.g. NIFTY, BANKNIFTY, RELIANCE)"
-            showPopularIndices={false}
-          />
+          <OptionsChain selected={selectedOption} onSelect={setSelectedOption} />
           <HistoricalData instrument={selectedOption} />
         </>
       )}

@@ -1,10 +1,22 @@
 import { useState, type FormEvent } from 'react'
 import { api } from '../api/client'
 
+const STORAGE_KEY = 'smartapi.loginDetails'
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
 export function LoginForm({ onLoggedIn }: { onLoggedIn: (clientCode: string) => void }) {
-  const [apiKey, setApiKey] = useState('')
-  const [clientCode, setClientCode] = useState('')
-  const [password, setPassword] = useState('')
+  const saved = loadSaved()
+  const [apiKey, setApiKey] = useState(saved?.apiKey ?? '')
+  const [clientCode, setClientCode] = useState(saved?.clientCode ?? '')
+  const [password, setPassword] = useState(saved?.password ?? '')
   const [totp, setTotp] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -15,6 +27,7 @@ export function LoginForm({ onLoggedIn }: { onLoggedIn: (clientCode: string) => 
     setLoading(true)
     try {
       const res = await api.login({ apiKey, clientCode, password, totp })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ apiKey, clientCode, password }))
       onLoggedIn(res.clientCode)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
@@ -26,7 +39,7 @@ export function LoginForm({ onLoggedIn }: { onLoggedIn: (clientCode: string) => 
   return (
     <form className="login-form" onSubmit={handleSubmit}>
       <h1>SmartAPI Login</h1>
-      <p className="muted">Credentials go straight to your local backend, never stored client-side.</p>
+      <p className="muted">Credentials sent to your local backend. Saved in browser storage except TOTP.</p>
 
       <label>
         API Key

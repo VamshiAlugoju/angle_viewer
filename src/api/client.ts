@@ -13,6 +13,10 @@ export interface Instrument {
   instrumenttype: string
   lotsize: string
   tick_size: string
+  expiry?: string
+  strike?: string
+  expiryType?: 'WEEKLY' | 'MONTHLY'
+  optionType?: 'CE' | 'PE' | ''
 }
 
 export interface CandlePoint {
@@ -71,4 +75,12 @@ export const api = {
   },
 
   indices: () => request<Instrument[]>('/api/instruments/indices'),
+
+  optionUnderlyings: (q: string) =>
+    request<string[]>(`/api/instruments/option-underlyings?q=${encodeURIComponent(q)}`),
+
+  optionsChain: (name: string, exchange = 'NFO') =>
+    request<Instrument[]>(
+      `/api/instruments/options-chain?name=${encodeURIComponent(name)}&exchange=${exchange}`
+    ),
 }

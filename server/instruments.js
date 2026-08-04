@@ -40,4 +40,54 @@ async function indices() {
   return list.filter((i) => i.instrumenttype === 'AMXIDX').slice(0, 200);
 }
 
-module.exports = { loadInstruments, search, indices };
+const OPTION_TYPES = ['OPTIDX', 'OPTSTK'];
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+// AngelOne expiry strings look like "28DEC2023"
+function parseExpiry(expiry) {
+  const day = Number(expiry.slice(0, 2));
+  const month = MONTHS.indexOf(expiry.slice(2, 5));
+  const year = Number(expiry.slice(5));
+  return new Date(Date.UTC(year, month, day));
+}
+
+async function optionUnderlyings(query) {
+  const list = await loadInstruments();
+  const q = (query || '').trim().toUpperCase();
+  const names = new Set();
+  for (const i of list) {
+    if (i.exch_seg !== 'NFO' || !OPTION_TYPES.includes(i.instrumenttype)) continue;
+    if (q && !i.name?.toUpperCase().includes(q)) continue;
+    names.add(i.name);
+  }
+  return [...names].sort().slice(0, 50);
+}
+
+// Groups an underlying's option contracts by expiry and tags each expiry as
+// WEEKLY or MONTHLY: the last expiry falling in a given calendar month is monthly.
+async function optionsChain({ name, exchange = 'NFO' }) {
+  const list = await loadInstruments();
+  const results = list.filter(
+    (i) => i.exch_seg === exchange && OPTION_TYPES.includes(i.instrumenttype) && i.name === name
+  );
+
+  const latestInMonth = new Map();
+  for (const i of results) {
+    if (!i.expiry) continue;
+    const date = parseExpiry(i.expiry);
+    const key = `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
+    const current = latestInMonth.get(key);
+    if (!current || date > current.date) latestInMonth.set(key, { expiry: i.expiry, date });
+  }
+  const monthlyExpiries = new Set([...latestInMonth.values()].map((v) => v.expiry));
+
+  return results
+    .map((i) => ({
+      ...i,
+      expiryType: monthlyExpiries.has(i.expiry) ? 'MONTHLY' : 'WEEKLY',
+      optionType: i.symbol?.endsWith('CE') ? 'CE' : i.symbol?.endsWith('PE') ? 'PE' : '',
+    }))
+    .sort((a, b) => parseExpiry(a.expiry) - parseExpiry(b.expiry) || Number(a.strike) - Number(b.strike));
+}
+
+module.exports = { loadInstruments, search, indices, optionUnderlyings, optionsChain };

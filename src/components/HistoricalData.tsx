@@ -12,12 +12,20 @@ const INTERVALS = [
   'ONE_DAY',
 ]
 
-function toDatetimeLocal(date: Date) {
-  const pad = (n: number) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(
-    date.getHours()
-  )}:${pad(date.getMinutes())}`
+function apiToInputValue(apiDate: string) {
+  return apiDate.replace(' ', 'T')
 }
+
+function inputToApiValue(inputDate: string) {
+  return inputDate.replace('T', ' ')
+}
+
+function istDateStr() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })
+}
+
+const MARKET_OPEN = '09:15'
+const MARKET_CLOSE = '15:30'
 
 function Sparkline({ candles }: { candles: CandlePoint[] }) {
   if (candles.length < 2) return null
@@ -42,14 +50,25 @@ function Sparkline({ candles }: { candles: CandlePoint[] }) {
   )
 }
 
+function downloadCsv(candles: CandlePoint[], instrument: Instrument, interval: string) {
+  const meta = `Interval,${interval}\n`
+  const header = 'Time,Open,High,Low,Close,Volume\n'
+  const rows = candles
+    .map((c) => [new Date(c[0]).toISOString(), c[1], c[2], c[3], c[4], c[5]].join(','))
+    .join('\n')
+  const blob = new Blob([meta + header + rows], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${instrument.symbol}_${instrument.token}_${interval}_candles.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function HistoricalData({ instrument }: { instrument: Instrument | null }) {
   const [interval, setInterval] = useState('ONE_DAY')
-  const [fromdate, setFromdate] = useState(() => {
-    const d = new Date()
-    d.setDate(d.getDate() - 30)
-    return toDatetimeLocal(d)
-  })
-  const [todate, setTodate] = useState(() => toDatetimeLocal(new Date()))
+  const [fromdate, setFromdate] = useState(() => `${istDateStr()} ${MARKET_OPEN}`)
+  const [todate, setTodate] = useState(() => `${istDateStr()} ${MARKET_CLOSE}`)
   const [candles, setCandles] = useState<CandlePoint[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -90,10 +109,25 @@ export function HistoricalData({ instrument }: { instrument: Instrument | null }
                 </option>
               ))}
             </select>
-            <input value={fromdate} onChange={(e) => setFromdate(e.target.value)} placeholder="YYYY-MM-DD HH:mm" />
-            <input value={todate} onChange={(e) => setTodate(e.target.value)} placeholder="YYYY-MM-DD HH:mm" />
+            <input
+              type="datetime-local"
+              value={apiToInputValue(fromdate)}
+              onChange={(e) => setFromdate(inputToApiValue(e.target.value))}
+            />
+            <input
+              type="datetime-local"
+              value={apiToInputValue(todate)}
+              onChange={(e) => setTodate(inputToApiValue(e.target.value))}
+            />
             <button type="button" onClick={fetchData} disabled={loading}>
               {loading ? 'Loading…' : 'Fetch'}
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadCsv(candles, instrument, interval)}
+              disabled={candles.length === 0}
+            >
+              Download CSV
             </button>
           </div>
 

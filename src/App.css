@@ -183,6 +183,13 @@ dd {
   background: var(--accent-bg);
 }
 
+.instrument-list li button.active,
+.hist-controls button.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .tag {
   margin-left: auto;
   font-size: 11px;
@@ -195,6 +202,18 @@ dd {
 .selected-instrument {
   margin-top: 12px;
   font-size: 13px;
+}
+
+.manual-entry {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  font-size: 13px;
+}
+
+.manual-entry summary {
+  cursor: pointer;
+  color: var(--accent);
 }
 
 .hist-controls {
