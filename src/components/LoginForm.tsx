@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { api } from '../api/client'
+import { api, type SessionTokens } from '../api/client'
 
 const STORAGE_KEY = 'smartapi.loginDetails'
 
@@ -12,7 +12,7 @@ function loadSaved() {
   }
 }
 
-export function LoginForm({ onLoggedIn }: { onLoggedIn: (clientCode: string) => void }) {
+export function LoginForm({ onLoggedIn }: { onLoggedIn: (tokens: SessionTokens) => void }) {
   const saved = loadSaved()
   const [apiKey, setApiKey] = useState(saved?.apiKey ?? '')
   const [clientCode, setClientCode] = useState(saved?.clientCode ?? '')
@@ -26,9 +26,9 @@ export function LoginForm({ onLoggedIn }: { onLoggedIn: (clientCode: string) => 
     setError(null)
     setLoading(true)
     try {
-      const res = await api.login({ apiKey, clientCode, password, totp })
+      const tokens = await api.login({ apiKey, clientCode, password, totp })
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ apiKey, clientCode, password }))
-      onLoggedIn(res.clientCode)
+      onLoggedIn(tokens)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {

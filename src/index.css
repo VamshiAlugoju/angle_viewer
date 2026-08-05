@@ -1,3 +1,21 @@
+@import "tailwindcss";
+
+/* Map Tailwind's design tokens onto our existing CSS vars (below), so utility
+   classes like bg-accent / text-muted / border-border pick up the same colors —
+   including the light/dark swap — instead of Tailwind's default palette. */
+@theme {
+  --color-bg: var(--bg);
+  --color-text: var(--text);
+  --color-text-h: var(--text-h);
+  --color-border: var(--border);
+  --color-code-bg: var(--code-bg);
+  --color-accent: var(--accent);
+  --color-accent-bg: var(--accent-bg);
+  --color-accent-border: var(--accent-border);
+  --font-sans: var(--sans);
+  --font-mono: var(--mono);
+}
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -11,8 +29,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -51,9 +69,8 @@
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
+  width: 100%;
+
   text-align: center;
   border-inline: 1px solid var(--border);
   min-height: 100svh;

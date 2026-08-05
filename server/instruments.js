@@ -40,6 +40,14 @@ async function indices() {
   return list.filter((i) => i.instrumenttype === 'AMXIDX').slice(0, 200);
 }
 
+// Looks up the tradable instrument for an index's spot/cash value, e.g. "Nifty 50",
+// so we can fetch its LTP alongside the option chain (used for the ATM strike).
+async function spot(symbol) {
+  const list = await indices();
+  const q = (symbol || '').trim().toUpperCase();
+  return list.find((i) => i.symbol?.toUpperCase() === q) || null;
+}
+
 const OPTION_TYPES = ['OPTIDX', 'OPTSTK'];
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
@@ -90,4 +98,4 @@ async function optionsChain({ name, exchange = 'NFO' }) {
     .sort((a, b) => parseExpiry(a.expiry) - parseExpiry(b.expiry) || Number(a.strike) - Number(b.strike));
 }
 
-module.exports = { loadInstruments, search, indices, optionUnderlyings, optionsChain };
+module.exports = { loadInstruments, search, indices, spot, optionUnderlyings, optionsChain };

@@ -95,7 +95,8 @@ label {
   border-bottom: 1px solid var(--border);
 }
 
-.tabs button {
+.tabs button,
+.tabs a {
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -103,9 +104,11 @@ label {
   color: var(--text);
   padding: 8px 4px;
   margin-right: 16px;
+  text-decoration: none;
 }
 
-.tabs button.active {
+.tabs button.active,
+.tabs a.active {
   color: var(--accent);
   border-bottom-color: var(--accent);
 }
@@ -223,10 +226,11 @@ dd {
   margin-bottom: 16px;
 }
 
-.sparkline {
+.premium-chart {
   width: 100%;
-  height: 120px;
   margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .table-wrap {
@@ -252,6 +256,320 @@ td {
 th:first-child,
 td:first-child {
   text-align: left;
+}
+
+.index-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.index-picker button.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.chain-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.chain-header .hist-controls {
+  margin-bottom: 0;
+}
+
+.chain-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.spot-price {
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.spot-price strong {
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.chain-wrap {
+  max-height: 520px;
+}
+
+table.option-chain {
+  font-size: 13px;
+}
+
+table.option-chain thead tr:first-child th {
+  text-align: center;
+  background: var(--code-bg);
+}
+
+table.option-chain th,
+table.option-chain td {
+  text-align: right;
+  white-space: nowrap;
+}
+
+table.option-chain .strike-col {
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-h);
+  background: var(--code-bg);
+}
+
+table.option-chain .chain-group.calls {
+  color: #16a34a;
+}
+
+table.option-chain .chain-group.puts {
+  color: #e5484d;
+}
+
+table.option-chain tr.atm-row td {
+  border-top: 1px solid var(--accent-border);
+  border-bottom: 1px solid var(--accent-border);
+}
+
+table.option-chain td.itm {
+  background: var(--accent-bg);
+}
+
+.chain-ltp {
+  display: inline-block;
+  min-width: 52px;
+  padding: 2px 8px;
+  color: var(--text-h);
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.chain-ltp.ce {
+  color: #16a34a;
+}
+
+.chain-ltp.pe {
+  color: #e5484d;
+}
+
+.chain-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  position: relative;
+}
+
+.quick-trade-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.buy-btn.mini,
+.sell-btn.mini {
+  padding: 1px 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  border-radius: 4px;
+}
+
+.greek-toggle {
+  background: none;
+  border: none;
+  padding: 2px;
+  border-radius: 4px;
+  color: var(--text);
+  line-height: 0;
+}
+
+.greek-toggle:hover,
+.greek-toggle.active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.greek-panel {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--accent-border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 11px;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+}
+
+.trade-ticket {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-bg);
+}
+
+.trade-ticket-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trade-ticket-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lots-input {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.lots-input input {
+  width: 60px;
+}
+
+.buy-btn {
+  background: rgba(22, 163, 74, 0.15);
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.4);
+}
+
+.sell-btn {
+  background: rgba(229, 72, 77, 0.15);
+  color: #e5484d;
+  border-color: rgba(229, 72, 77, 0.4);
+}
+
+.positions-panel h3 {
+  margin: 16px 0 8px;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.pnl-pos {
+  color: #16a34a;
+}
+
+.pnl-neg {
+  color: #e5484d;
+}
+
+.ticket-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.basket-builder {
+  margin-top: 16px;
+}
+
+.chart-panel {
+  margin-top: 16px;
+}
+
+.chain-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.switch-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0;
+  font-size: 14px;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch-track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.15s;
+}
+
+.switch-track::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  transition: transform 0.15s;
+}
+
+.switch input:checked + .switch-track {
+  background: var(--accent);
+}
+
+.switch input:checked + .switch-track::before {
+  transform: translateX(16px);
+}
+
+.basket-label-input {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+}
+
+.lots-cell {
+  width: 60px;
+}
+
+.basket-header-row td {
+  font-weight: 600;
+  color: var(--text-h);
+  background: var(--code-bg);
+  border-top: 1px solid var(--border);
+}
+
+.basket-leg-row td:first-child {
+  padding-left: 24px;
 }
 
 .ticker {

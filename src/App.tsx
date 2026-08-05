@@ -1,33 +1,51 @@
 import { useEffect, useState } from 'react'
-import { api, type Instrument } from './api/client'
+import { NavLink, Route, Routes } from 'react-router-dom'
+import { api, type SessionTokens } from './api/client'
 import { LoginForm } from './components/LoginForm'
-import { ProfileRms } from './components/ProfileRms'
-import { InstrumentSearch } from './components/InstrumentSearch'
-import { OptionsChain } from './components/OptionsChain'
-import { HistoricalData } from './components/HistoricalData'
-import { LiveTicker } from './components/LiveTicker'
+import { Home } from './pages/Home'
+import { DemoTrade } from './pages/DemoTrade'
+import { Profile } from './pages/Profile'
+import { Positions } from './pages/Positions'
+import { clearSession, isExpired, loadSession, saveSession } from './auth'
+import { usePositions } from './usePositions'
 import './App.css'
-
-type Tab = 'equity' | 'options'
 
 function App() {
   const [clientCode, setClientCode] = useState<string | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
-  const [selectedInstrument, setSelectedInstrument] = useState<Instrument | null>(null)
-  const [selectedOption, setSelectedOption] = useState<Instrument | null>(null)
-  const [tab, setTab] = useState<Tab>('equity')
+  const positions = usePositions(!!clientCode)
 
   useEffect(() => {
-    api
-      .session()
-      .then((s) => setClientCode(s.clientCode))
+    const stored = loadSession()
+    if (!stored) {
+      setCheckingSession(false)
+      return
+    }
+
+    // Jwt still valid (per its own exp claim) — try to rehydrate the server's
+    // in-memory session with it (handles the common case of a server restart).
+    const attempt = isExpired(stored)
+      ? api.refreshSession(stored) // jwt expired — exchange the refresh token for a new one
+      : api.restoreSession(stored)
+
+    attempt
+      .then((tokens) => {
+        saveSession(tokens)
+        setClientCode(tokens.clientCode)
+      })
+      .catch(() => clearSession())
       .finally(() => setCheckingSession(false))
   }, [])
 
+  function handleLoggedIn(tokens: SessionTokens) {
+    saveSession(tokens)
+    setClientCode(tokens.clientCode)
+  }
+
   async function handleLogout() {
     await api.logout()
+    clearSession()
     setClientCode(null)
-    setSelectedInstrument(null)
   }
 
   if (checkingSession) return null
@@ -35,7 +53,7 @@ function App() {
   if (!clientCode) {
     return (
       <div className="app-shell centered">
-        <LoginForm onLoggedIn={setClientCode} />
+        <LoginForm onLoggedIn={handleLoggedIn} />
       </div>
     )
   }
@@ -52,33 +70,27 @@ function App() {
         </div>
       </header>
 
-      <ProfileRms />
-
       <nav className="tabs">
-        <button type="button" className={tab === 'equity' ? 'active' : ''} onClick={() => setTab('equity')}>
-          Equity
-        </button>
-        <button type="button" className={tab === 'options' ? 'active' : ''} onClick={() => setTab('options')}>
-          Options
-        </button>
+        <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
+          Home
+        </NavLink>
+        <NavLink to="/demo_trade" className={({ isActive }) => (isActive ? 'active' : '')}>
+          Demo Trade
+        </NavLink>
+        <NavLink to="/positions" className={({ isActive }) => (isActive ? 'active' : '')}>
+          Positions
+        </NavLink>
+        <NavLink to="/profile" className={({ isActive }) => (isActive ? 'active' : '')}>
+          Profile
+        </NavLink>
       </nav>
 
-      {tab === 'equity' && (
-        <>
-          <div className="card-row">
-            <InstrumentSearch selected={selectedInstrument} onSelect={setSelectedInstrument} />
-            <LiveTicker instrument={selectedInstrument} />
-          </div>
-          <HistoricalData instrument={selectedInstrument} />
-        </>
-      )}
-
-      {tab === 'options' && (
-        <>
-          <OptionsChain selected={selectedOption} onSelect={setSelectedOption} />
-          <HistoricalData instrument={selectedOption} />
-        </>
-      )}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/demo_trade" element={<DemoTrade positions={positions} />} />
+        <Route path="/positions" element={<Positions positions={positions} />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { api, type CandlePoint, type Instrument } from '../api/client'
+import { PremiumChart } from './PremiumChart'
 
 const INTERVALS = [
   'ONE_MINUTE',
@@ -26,29 +27,6 @@ function istDateStr() {
 
 const MARKET_OPEN = '09:15'
 const MARKET_CLOSE = '15:30'
-
-function Sparkline({ candles }: { candles: CandlePoint[] }) {
-  if (candles.length < 2) return null
-  const closes = candles.map((c) => c[4])
-  const min = Math.min(...closes)
-  const max = Math.max(...closes)
-  const range = max - min || 1
-  const width = 600
-  const height = 120
-  const points = closes
-    .map((c, i) => {
-      const x = (i / (closes.length - 1)) * width
-      const y = height - ((c - min) / range) * height
-      return `${x},${y}`
-    })
-    .join(' ')
-
-  return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="sparkline" preserveAspectRatio="none">
-      <polyline points={points} fill="none" stroke="var(--accent)" strokeWidth="2" />
-    </svg>
-  )
-}
 
 function downloadCsv(candles: CandlePoint[], instrument: Instrument, interval: string) {
   const meta = `Interval,${interval}\n`
@@ -135,7 +113,7 @@ export function HistoricalData({ instrument }: { instrument: Instrument | null }
 
           {candles.length > 0 && (
             <>
-              <Sparkline candles={candles} />
+              <PremiumChart candles={candles} />
               <div className="table-wrap">
                 <table>
                   <thead>
